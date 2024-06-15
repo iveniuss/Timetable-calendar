@@ -3,6 +3,7 @@ from config import groups as groups_info
 
 COURSES_SHIFT = 24
 
+
 def start():
     builder = InlineKeyboardBuilder()
     builder.button(text='К выбору курсов', callback_data='course_select')

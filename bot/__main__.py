@@ -48,14 +48,19 @@ async def callback_worker(callback: types.CallbackQuery):
         name = callback.data.replace("group:", "")
         for group in groups:
             if group.get('name') == name and len(group.get('subgroups')) == 1:
-                await callback.message.edit_text(text=f"Ваша ссылка\n{group.get('links')[0]}",
-                                                 reply_markup=keyboards.finish(name))
+                await callback.message.edit_text(text=f"[Ваша ссылка]({group.get('links')[0]})",
+                                                 reply_markup=keyboards.finish(name),
+                                                 arse_mode="MarkdownV2",
+                                                 disable_web_page_preview=True
+                                                 )
 
             elif group.get('name') == name:
-                await callback.message.edit_text(text="Ссылки на календарь\n" +
-                                                      f"Подгруппа {group.get('subgroups')[0]}: {group.get('links')[0]}\n" +
-                                                      f"Подгруппа {group.get('subgroups')[1]}: {group.get('links')[1]}\n",
-                                                 reply_markup=keyboards.finish(name))
+                await callback.message.edit_text(text="Ссылки на календарь:\n" +
+                                                      f"[Подгруппа {group.get('subgroups')[0]}]({group.get('links')[0]})\n" +
+                                                      f"[Подгруппа {group.get('subgroups')[1]}]({group.get('links')[1]})",
+                                                 reply_markup=keyboards.finish(name),
+                                                 parse_mode="MarkdownV2",
+                                                 disable_web_page_preview=True)
 
 
 async def main():
