@@ -1,4 +1,4 @@
-API_TOKEN = "API TOKEN для Google API"
+API_TOKEN = "" # Токен телеграм бота
 groups = ({
               'name': '',  # Имя группы (РИС-23-2)
               'subgroups': '',  # Номера подгрупп string без пробела
