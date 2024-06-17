@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
-from config import groups, API_TOKEN
+from config import *
 import logging
 from asyncio import run
 from time import sleep
@@ -24,7 +24,11 @@ async def start(message: types.message):
 @dp.callback_query()
 async def callback_worker(callback: types.CallbackQuery):
     print(callback.data)
-    if callback.data == "course_select":
+    if callback.data == "start":
+        await callback.message.edit_text(text="Привет, этот бот выдаст тебе ссылку на календарь твоей группы",
+                                         reply_markup=keyboards.start())
+
+    elif callback.data == "course_select":
         await callback.message.edit_text(text="Выбери курс",
                                          reply_markup=keyboards.courses())
 
@@ -48,9 +52,9 @@ async def callback_worker(callback: types.CallbackQuery):
         name = callback.data.replace("group:", "")
         for group in groups:
             if group.get('name') == name and len(group.get('subgroups')) == 1:
-                await callback.message.edit_text(text=f"[Ваша ссылка]({group.get('links')[0]})",
+                await callback.message.edit_text(text=f"[Ссылка на календарь]({group.get('links')[0]})",
                                                  reply_markup=keyboards.finish(name),
-                                                 arse_mode="MarkdownV2",
+                                                 parse_mode="MarkdownV2",
                                                  disable_web_page_preview=True
                                                  )
 
@@ -61,6 +65,27 @@ async def callback_worker(callback: types.CallbackQuery):
                                                  reply_markup=keyboards.finish(name),
                                                  parse_mode="MarkdownV2",
                                                  disable_web_page_preview=True)
+
+    elif callback.data == "eng_select":
+        await callback.message.edit_text(text="Выбери свой курс по английскому",
+                                         reply_markup=keyboards.eng_levels())
+
+    elif callback.data == "eng_select_new":
+        await callback.message.answer(text="Выбери свой курс по английскому",
+                                      reply_markup=keyboards.eng_levels())
+
+    elif callback.data.startswith("level:"):
+        name = callback.data.replace("level:", "")
+        await callback.message.edit_text(text="Выбери группу",
+                                         reply_markup=keyboards.eng_groups(name))
+
+    elif callback.data.startswith("eng:"):
+        name = callback.data.replace("eng:", "")
+        await callback.message.edit_text(text=f"[Ссылка на календарь]({eng_groups[name]['link']})",
+                                         reply_markup=keyboards.finish(name),
+                                         parse_mode="MarkdownV2",
+                                         disable_web_page_preview=True
+                                         )
 
 
 async def main():

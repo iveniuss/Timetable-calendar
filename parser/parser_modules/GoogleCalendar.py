@@ -1,6 +1,7 @@
 import logging
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from config import groups, eng_groups
 
 logging.basicConfig(filename="logs/calendar_logs.log", level=logging.INFO,
                     format=' %(asctime)s - %(levelname)s - %(message)s',
@@ -21,11 +22,11 @@ class GoogleCalendar(object):
         ex = self.service.events().insert(calendarId=calendarID,
                                           body=event).execute()
 
-        logging.info(f"event created {ex.get('id')}")
+        logging.info(f"event created {event['summary']}")
 
     def delete_id(self, event_id, calendarID):
         self.service.events().delete(calendarId=calendarID, eventId=event_id).execute()
-        logging.info(f"event deleted {event_id}")
+        logging.info(f"event deleted id {event_id}")
 
     def get_list(self, calendarID):
         ex = self.service.events().list(calendarId=calendarID, maxResults=9999).execute()
@@ -35,6 +36,21 @@ class GoogleCalendar(object):
     def get_list_dict(self, calendarID):
         prev_timetable = []
         events = self.get_list(calendarID)
+
+        group = ''
+
+        for gr in groups:
+            if calendarID in gr['ids']:
+                index = gr['ids'].index(calendarID)
+                group = gr['subgroups'][index]
+                break
+
+        if group == '':
+            for gr in eng_groups:
+                if eng_groups[gr]['id'] == calendarID:
+                    group = gr
+                    break
+
         for e in events:
             event_dict = {
                 'summary': e.get('summary'),
@@ -42,9 +58,10 @@ class GoogleCalendar(object):
                 'location': e.get('location'),
                 'start': e.get('start'),
                 'end': e.get('end'),
-                'group': e['organizer']['displayName'][-2],
+                'group': group,
                 'id': e.get('id')
             }
+
             if event_dict['description'] is None:
                 event_dict['description'] = ''
 
