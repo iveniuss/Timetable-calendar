@@ -51,10 +51,10 @@ class Lessons(object):
         cell_value = cell_value.replace('\n', '/single/')
         subgroups = []
 
-        if fnmatch(cell_value, '*/double/' + TL_pat + '/single/*/double/' + TL_pat):
-            lessons = cell_value.split('/single/')
+        if fnmatch(cell_value, '*/double/' + TL_pat + '/single/*/double/' + TL_pat + "*"):
+            subgroups = cell_value.split('/single/')
         elif fnmatch(cell_value, '*/double/' + TL_pat + '/single/' + TL_pat):
-            subgroups = cell_value.split(';')
+            subgroups = cell_value.split('/single/')
             subgroups[1] = subgroups[0][:subgroups[0].find('/double/')] + subgroups[1]
         elif fnmatch(cell_value, '*/single/' + TL_pat):
             cell_value = cell_value.replace('/single/', '/double/')
@@ -66,26 +66,21 @@ class Lessons(object):
             cell_value = cell_value.replace('/single/', ' ')
             subgroups = [cell_value]
 
-        subgroup1 = self.group_info.get('subgroups')[0]
-        subgroup2 = ''
-        if len(self.group_info.get('subgroups')) == 2:
-            subgroup2 = self.group_info.get('subgroups')[1]
-
-        return subgroups, subgroup1, subgroup2
+        return subgroups
 
     def _parse_lessons(self, cell_value: str):
 
-        subgroups, subgroup1, subgroup2 = self._split_groups(cell_value)
+        subgroups = self._split_groups(cell_value)
 
         for lesson_cell in subgroups:
-            if lesson_cell[-2:] == f'{subgroup1})':
-                subgroup = subgroup1
-                lesson_cell = lesson_cell.replace(f', {subgroup1}', '')
-            elif lesson_cell[-2:] == f'{subgroup2})':
-                subgroup = subgroup2
-                lesson_cell = lesson_cell.replace(f', {subgroup2}', '')
-            else:
-                subgroup = subgroup1 + subgroup2
+            subgroup = ''
+            for sg_num in self.group_info['subgroups']:
+                if lesson_cell[-2:] == f'{sg_num})':
+                    subgroup = sg_num
+                    lesson_cell = lesson_cell.replace(f', {sg_num}', '')
+                    break
+                else:
+                    subgroup = self.group_info['subgroups']
 
             if lesson_cell.count('/double/') == 1:
                 title, teacher_location = lesson_cell.split("/double/")
@@ -111,13 +106,17 @@ class Lessons(object):
                 title = title.replace("(ДОЦ) ", "")
 
             if title != '':
+                if subgroup == '':
+                    yield Lesson(title, teacher, location, '')
                 for g in subgroup:
                     yield Lesson(title, teacher, location, g)
 
     def get_lessons_dict(self, prev_timetable):
         actual_timetable = []
         for lesson in self.lessons:
-            actual_timetable.append(lesson.get_dict())
+            ls_dict = lesson.get_dict()
+            if ls_dict not in actual_timetable:
+                actual_timetable.append(ls_dict)
         only_in_prev = [prev_event for prev_event in prev_timetable if
                         not any(_compare_events(prev_event, actual_event) for actual_event in actual_timetable)]
 
@@ -189,17 +188,19 @@ class LessonsEng(object):
                 elif "Продвинутый" in description:
                     group += 'ПК-'
                 elif "начинающих" in title:
-                    group += 'Н'
+                    group += 'Н-1'
                 if 'курс' in description:
                     index = description.find('курс')
                     course_num = description[index + 5:index + 6].strip()
                     group += course_num
-                self.lessons.append(Lesson(title+extra, description.strip(), location, group, start, end))
+                self.lessons.append(Lesson(title + extra, description.strip(), location, group, start, end))
 
     def get_lessons_dict(self, prev_timetable):
         actual_timetable = []
         for lesson in self.lessons:
-            actual_timetable.append(lesson.get_dict())
+            ls_dict = lesson.get_dict()
+            if ls_dict not in actual_timetable:
+                actual_timetable.append(ls_dict)
         only_in_prev = [prev_event for prev_event in prev_timetable if
                         not any(_compare_events(prev_event, actual_event) for actual_event in actual_timetable)]
 

@@ -34,7 +34,8 @@ async def callback_worker(callback: types.CallbackQuery):
 
     elif callback.data == "course_select_new":
         await callback.message.answer(text="Выбери курс",
-                                      reply_markup=keyboards.courses())
+                                      reply_markup=keyboards.courses(False))
+        await callback.answer()
 
     elif callback.data == "WIP":
         await callback.answer("В разработке")
@@ -51,7 +52,7 @@ async def callback_worker(callback: types.CallbackQuery):
     elif callback.data.startswith("group:"):
         name = callback.data.replace("group:", "")
         for group in groups:
-            if group.get('name') == name and len(group.get('subgroups')) == 1:
+            if group.get('name') == name and len(group.get('subgroups')) == 0:
                 await callback.message.edit_text(text=f"[Ссылка на календарь]({group.get('links')[0]})",
                                                  reply_markup=keyboards.finish(name),
                                                  parse_mode="MarkdownV2",
@@ -72,7 +73,8 @@ async def callback_worker(callback: types.CallbackQuery):
 
     elif callback.data == "eng_select_new":
         await callback.message.answer(text="Выбери свой курс по английскому",
-                                      reply_markup=keyboards.eng_levels())
+                                      reply_markup=keyboards.eng_levels(False))
+        await callback.answer()
 
     elif callback.data.startswith("level:"):
         name = callback.data.replace("level:", "")

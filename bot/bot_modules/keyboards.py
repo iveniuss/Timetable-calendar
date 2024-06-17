@@ -14,11 +14,12 @@ def start():
     return builder.as_markup()
 
 
-def courses():
+def courses(back_button=True):
     builder = InlineKeyboardBuilder()
     for i in range(1, 5):
         builder.button(text=str(i), callback_data="course:" + str(COURSES_SHIFT - i))
-    builder.button(text='< Назад  ', callback_data="start")
+    if back_button:
+        builder.button(text='< Назад  ', callback_data="start")
     builder.adjust(2)
     return builder.as_markup()
 
@@ -63,7 +64,7 @@ def groups(track):
     return builder.as_markup()
 
 
-def eng_levels():
+def eng_levels(back_button=True):
     builder = InlineKeyboardBuilder()
     builder.button(text="Базовый", callback_data="level:БК")
     builder.button(text="Основной", callback_data="level:ОК")
@@ -71,7 +72,8 @@ def eng_levels():
     builder.button(text="Деловой Основной", callback_data="level:ДОК")
     builder.button(text="Деловой Продвинутый", callback_data="level:ДПК")
     builder.button(text='Для начинающих', callback_data="level:Н")
-    builder.button(text='< Назад  ', callback_data="start")
+    if back_button:
+        builder.button(text='< Назад  ', callback_data="start")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -99,5 +101,5 @@ def finish(group):
     builder.button(text='Выбрать английский', callback_data='eng_select_new')
     builder.button(text='Помощь', url="https://hsecalendarhelp.tiwri.com/")
     builder.button(text='< Назад  ', callback_data=f"track:{group[:-2]}")
-    builder.adjust(2)
+    builder.adjust(1)
     return builder.as_markup()

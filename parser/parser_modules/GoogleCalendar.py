@@ -33,19 +33,20 @@ class GoogleCalendar(object):
         items = ex.get("items")
         return items
 
-    def get_list_dict(self, calendarID):
+    def get_list_dict(self, calendarID, is_eng=False):
         prev_timetable = []
         events = self.get_list(calendarID)
 
         group = ''
-
-        for gr in groups:
-            if calendarID in gr['ids']:
-                index = gr['ids'].index(calendarID)
-                group = gr['subgroups'][index]
-                break
-
-        if group == '':
+        if not is_eng:
+            for gr in groups:
+                if calendarID in gr['ids'] and len(gr['ids']) > 1:
+                    index = gr['ids'].index(calendarID)
+                    group = gr['subgroups'][index]
+                    break
+                elif calendarID in gr['ids']:
+                    break
+        else:
             for gr in eng_groups:
                 if eng_groups[gr]['id'] == calendarID:
                     group = gr

@@ -37,11 +37,17 @@ while True:
             events = lessons.get_lessons_dict(prev_timetable)
 
             for event in events['to_add']:
-                cal_id = group['ids'][group['subgroups'].find(event['group'])]
+                if group['subgroups'] != '':
+                    cal_id = group['ids'][group['subgroups'].find(event['group'])]
+                else:
+                    cal_id = group['ids'][0]
                 calendar.create_event(event, cal_id)
 
             for event in events['to_del']:
-                cal_id = group['ids'][group['subgroups'].find(event['group'])]
+                if group['subgroups'] != '':
+                    cal_id = group['ids'][group['subgroups'].find(event['group'])]
+                else:
+                    cal_id = group['ids'][0]
                 calendar.delete_id(event['id'], cal_id)
 
             logging.info(f"{group['name']} calendar updated({datetime.datetime.now() - start_time_gr})")
@@ -60,7 +66,7 @@ while True:
 
         prev_timetable = []
         for eng_group in eng_groups:
-            prev_timetable += calendar.get_list_dict(eng_groups[eng_group]['id'])
+            prev_timetable += calendar.get_list_dict(eng_groups[eng_group]['id'], True)
 
         events = lessons.get_lessons_dict(prev_timetable)
 
