@@ -1,5 +1,5 @@
 class Lesson(object):
-    def __init__(self, name, teacher_name, location, group, start="01-01-1970T00:00+05:00",
+    def __init__(self, name='', teacher_name='', location='', group='', start="01-01-1970T00:00+05:00",
                  end="01-01-1970T00:00+05:00"):
         self.name = name
         self.teacher_name = teacher_name

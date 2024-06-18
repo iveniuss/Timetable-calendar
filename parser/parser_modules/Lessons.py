@@ -24,6 +24,22 @@ def _compare_events(event1, event2):
     return all(event1[key] == event2[key] for key in event1 if key != 'id')
 
 
+def _split_teacher_location(description):
+    if fnmatch(description, f'(*){TL_pat}'):
+        close_scope = description.find(')')
+        description = description[close_scope + 1:]
+    open_scope = description.find('(')
+    close_scope = description.rfind(')')
+    if open_scope != -1:
+        location = description[open_scope + 1:close_scope]
+        teacher = description[:open_scope]
+    else:
+        location = ''
+        teacher = description
+
+    return teacher, location
+
+
 class Lessons(object):
 
     def __init__(self, group):
@@ -46,70 +62,54 @@ class Lessons(object):
                 l.add_date(start, end)
                 self.lessons.append(l)
 
-    def _split_groups(self, cell_value):
-        cell_value = cell_value.replace('\n\n', '/double/')
-        cell_value = cell_value.replace('\n', '/single/')
-        subgroups = []
-
-        if fnmatch(cell_value, '*/double/' + TL_pat + '/single/*/double/' + TL_pat + "*"):
-            subgroups = cell_value.split('/single/')
-        elif fnmatch(cell_value, '*/double/' + TL_pat + '/single/' + TL_pat):
-            subgroups = cell_value.split('/single/')
-            subgroups[1] = subgroups[0][:subgroups[0].find('/double/')] + subgroups[1]
-        elif fnmatch(cell_value, '*/single/' + TL_pat):
-            cell_value = cell_value.replace('/single/', '/double/')
-            subgroups = [cell_value]
-        elif fnmatch(cell_value, '*/single/' + 'https://*'):
-            cell_value = cell_value.replace('/single/', '/double/')
-            subgroups = [cell_value]
-        else:
-            cell_value = cell_value.replace('/single/', ' ')
-            subgroups = [cell_value]
-
-        return subgroups
-
-    def _parse_lessons(self, cell_value: str):
-
-        subgroups = self._split_groups(cell_value)
-
-        for lesson_cell in subgroups:
-            subgroup = ''
-            for sg_num in self.group_info['subgroups']:
-                if lesson_cell[-2:] == f'{sg_num})':
-                    subgroup = sg_num
-                    lesson_cell = lesson_cell.replace(f', {sg_num}', '')
-                    break
-                else:
-                    subgroup = self.group_info['subgroups']
-
-            if lesson_cell.count('/double/') == 1:
-                title, teacher_location = lesson_cell.split("/double/")
-                if fnmatch(teacher_location, '(*)*(*)'):
-                    close_scope = teacher_location.find(')')
-                    teacher_location = teacher_location[close_scope + 1:]
-                open_scope = teacher_location.find('(')
-                close_scope = teacher_location.find(')')
-                if open_scope != -1:
-                    location = teacher_location[open_scope + 1:close_scope]
-                    teacher = teacher_location[:open_scope - 1]
-                else:
-                    location = ''
-                    teacher = teacher_location
+    def _split_groups(self, name, dscr):
+        if name == 'None' or name == '' or "1 курс. Английский язык" in name:
+            return
+        group = ''
+        if self.group_info['subgroups'] != '':
+            for gr in self.group_info['subgroups']:
+                if dscr.endswith(f'{gr})'):
+                    dscr = dscr.replace(f', {gr}', '')
+                    group = gr
+            tcr, loc = _split_teacher_location(dscr)
+            if group != '':
+                yield Lesson(name, tcr, loc, group)
             else:
-                title = lesson_cell
-                teacher = ''
-                location = ''
+                for gr in self.group_info['subgroups']:
+                    yield Lesson(name, tcr, loc, gr)
+        else:
+            tcr, loc = _split_teacher_location(dscr)
+            yield Lesson(name, tcr, loc, group)
 
-            if "Английский язык" in title or title == "None":
-                title = ''
-            if "(ДОЦ)" in title:
-                title = title.replace("(ДОЦ) ", "")
+    def _parse_lessons(self, cell_value):
+        origin_list = cell_value.split('\n')
 
-            if title != '':
-                if subgroup == '':
-                    yield Lesson(title, teacher, location, '')
-                for g in subgroup:
-                    yield Lesson(title, teacher, location, g)
+        for s in origin_list:
+            if len(s) <= 1:
+                origin_list.remove(s)
+        name_list = origin_list.copy()
+        descr_list = []
+        for s in origin_list:
+            if fnmatch(s, TL_pat):
+                descr_list.append(s)
+                name_list.remove(s)
+
+        if len(name_list) == len(descr_list):
+            for i in range(len(name_list)):
+                for lesson in self._split_groups(name_list[i], descr_list[i]):
+                    yield lesson
+
+        elif len(name_list) == 1 and len(descr_list) > 1:
+            for s in descr_list:
+                for lesson in self._split_groups(name_list[0], s):
+                    yield lesson
+
+        else:
+            string = ''
+            for i in origin_list:
+                string += i + ' '
+            for lesson in self._split_groups(string, string):
+                yield lesson
 
     def get_lessons_dict(self, prev_timetable):
         actual_timetable = []
