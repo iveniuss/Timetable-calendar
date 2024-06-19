@@ -5,13 +5,17 @@ from config import eng_groups as eng_groups_info
 COURSES_SHIFT = 24
 
 
-def start():
+def _start():
     builder = InlineKeyboardBuilder()
     builder.button(text='Выбор курсов', callback_data='course_select')
     builder.button(text='Выбор английского', callback_data='eng_select')
     builder.button(text='Помощь', url="https://hsecalendarhelp.tiwri.com/")
     builder.adjust(1)
-    return builder.as_markup()
+    return builder
+
+
+def start():
+    return _start().as_markup()
 
 
 def courses(back_button=True):
@@ -34,7 +38,7 @@ def tracks(course):
     elif course == "21":
         tracks_list = ("ПИ", "БИ", "Э", "УБ", "И", "Ю", "ИЯ")
     elif course == "20":
-        builder.button(text="тут будут направления", callback_data="WIP")
+        tracks_list = ("И", "Ю")
 
     for track in tracks_list:
         builder.button(text=track, callback_data=f"track:{track}-{course}")
@@ -96,10 +100,14 @@ def eng_groups(name):
 
 
 def finish(group):
-    builder = InlineKeyboardBuilder()
-    builder.button(text='Выбрать группу', callback_data='course_select_new')
-    builder.button(text='Выбрать английский', callback_data='eng_select_new')
-    builder.button(text='Помощь', url="https://hsecalendarhelp.tiwri.com/")
+    builder = _start()
     builder.button(text='< Назад  ', callback_data=f"track:{group[:-2]}")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def eng_finish(group):
+    builder = _start()
+    builder.button(text='< Назад  ', callback_data=f"level:{group[:group.rfind('-')]}")
     builder.adjust(1)
     return builder.as_markup()

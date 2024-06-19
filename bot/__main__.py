@@ -84,7 +84,7 @@ async def callback_worker(callback: types.CallbackQuery):
     elif callback.data.startswith("eng:"):
         name = callback.data.replace("eng:", "")
         await callback.message.edit_text(text=f"[Ссылка на календарь]({eng_groups[name]['link']})",
-                                         reply_markup=keyboards.finish(name),
+                                         reply_markup=keyboards.eng_finish(name),
                                          parse_mode="MarkdownV2",
                                          disable_web_page_preview=True
                                          )

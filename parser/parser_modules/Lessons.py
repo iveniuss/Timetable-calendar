@@ -25,10 +25,7 @@ def _compare_events(event1, event2):
 
 
 def _split_teacher_location(description):
-    if fnmatch(description, f'(*){TL_pat}'):
-        close_scope = description.find(')')
-        description = description[close_scope + 1:]
-    open_scope = description.find('(')
+    open_scope = description.rfind('(')
     close_scope = description.rfind(')')
     if open_scope != -1:
         location = description[open_scope + 1:close_scope]
@@ -95,8 +92,8 @@ class Lessons(object):
                 name_list.remove(s)
 
         if len(name_list) == len(descr_list):
-            for i in range(len(name_list)):
-                for lesson in self._split_groups(name_list[i], descr_list[i]):
+            for s in range(len(name_list)):
+                for lesson in self._split_groups(name_list[s], descr_list[s]):
                     yield lesson
 
         elif len(name_list) == 1 and len(descr_list) > 1:
@@ -105,10 +102,13 @@ class Lessons(object):
                     yield lesson
 
         else:
-            string = ''
-            for i in origin_list:
-                string += i + ' '
-            for lesson in self._split_groups(string, string):
+            summary = dscr = ''
+            for s in origin_list:
+                summary += s + ' '
+                dscr += s + '\n'
+            summary = summary.strip()
+            dscr = summary.strip('\n')
+            for lesson in self._split_groups(summary, dscr):
                 yield lesson
 
     def get_lessons_dict(self, prev_timetable):
