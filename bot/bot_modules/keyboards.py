@@ -2,14 +2,14 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import groups as groups_info
 from config import eng_groups as eng_groups_info
 
-COURSES_SHIFT = 24
+COURSES_SHIFT = 25
 
 
 def _start():
     builder = InlineKeyboardBuilder()
     builder.button(text='Выбор курсов', callback_data='course_select')
-    builder.button(text='Выбор английского', callback_data='eng_select')
-    builder.button(text='Помощь', url="https://hsecalendarhelp.tiwri.com/")
+    # builder.button(text='Выбор английского', callback_data='eng_select') Отложено до лучших времен
+    builder.button(text='Помощь', url="https://iveniuss.notion.site/Google-590edc08e8a645128dd7ccd6a35df734?pvs=4")
     builder.adjust(1)
     return builder
 
@@ -35,10 +35,10 @@ def tracks(course):
 
     if course == "23" or course == "22":
         tracks_list = ("РИС", "МБ", "И", "Ю", "ИЯ")
-    elif course == "21":
-        tracks_list = ("ПИ", "БИ", "Э", "УБ", "И", "Ю", "ИЯ")
-    elif course == "20":
-        tracks_list = ("И", "Ю")
+    # elif course == "21":
+    #     tracks_list = ("ПИ", "БИ", "Э", "УБ", "И", "Ю", "ИЯ")
+    # elif course == "20":
+    #     tracks_list = ("И", "Ю")
 
     for track in tracks_list:
         builder.button(text=track, callback_data=f"track:{track}-{course}")

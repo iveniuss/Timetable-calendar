@@ -60,7 +60,7 @@ class Lessons(object):
                 self.lessons.append(l)
 
     def _split_groups(self, name, dscr):
-        if name == 'None' or name == '' or "1 курс. Английский язык" in name:
+        if name == 'None' or name == '' or "курс. Английский язык" in name:
             return
         group = ''
         if self.group_info['subgroups'] != '':
