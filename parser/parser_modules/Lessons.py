@@ -6,6 +6,7 @@ from config import mod_dates
 TL_pat = '* ?.?. (*)'
 
 WEEKDAYS = ("Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота")
+IGNORE = ('None', 'Английский язык', 'Военная кафедра')
 
 
 def _format_date_time(start_time, end_time, date):
@@ -60,7 +61,9 @@ class Lessons(object):
                 self.lessons.append(l)
 
     def _split_groups(self, name, dscr):
-        if name == 'None' or name == '' or "курс. Английский язык" in name:
+        if name == '':
+            return
+        if any(substr in name for substr in IGNORE):
             return
         group = ''
         if self.group_info['subgroups'] != '':
