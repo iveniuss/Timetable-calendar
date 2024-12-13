@@ -52,35 +52,35 @@ while True:
 
             logging.info(f"{group['name']} calendar updated({datetime.datetime.now() - start_time_gr})")
 
-        start_time_eng = datetime.datetime.now()
-
-        lessons = LessonsEng()
-
-        for workbook in timetable.get_workbooks_eng():
-            worksheets = workbook.sheetnames
-            if len(worksheets) >= 3:
-                lessons.add_english_from_sheet(workbook[worksheets[-2]])
-                lessons.add_english_from_sheet(workbook[worksheets[-1]])
-            else:
-                lessons.add_english_from_sheet(workbook[worksheets[-1]])
-
-        prev_timetable = []
-        for eng_group in eng_groups:
-            prev_timetable += calendar.get_list_dict(eng_groups[eng_group]['id'], True)
-
-        events = lessons.get_lessons_dict(prev_timetable)
-
-        for event in events['to_add']:
-            if event['group'] in eng_groups:
-                cal_id = eng_groups[event['group']]['id']
-                calendar.create_event(event, cal_id)
-
-        for event in events['to_del']:
-            if event['group'] in eng_groups:
-                cal_id = eng_groups[event['group']]['id']
-                calendar.delete_id(event['id'], cal_id)
-
-        logging.info(f"English timetable updated ({datetime.datetime.now() - start_time_eng})")
+        # start_time_eng = datetime.datetime.now()
+        #
+        # lessons = LessonsEng()
+        #
+        # for workbook in timetable.get_workbooks_eng():
+        #     worksheets = workbook.sheetnames
+        #     if len(worksheets) >= 3:
+        #         lessons.add_english_from_sheet(workbook[worksheets[-2]])
+        #         lessons.add_english_from_sheet(workbook[worksheets[-1]])
+        #     else:
+        #         lessons.add_english_from_sheet(workbook[worksheets[-1]])
+        #
+        # prev_timetable = []
+        # for eng_group in eng_groups:
+        #     prev_timetable += calendar.get_list_dict(eng_groups[eng_group]['id'], True)
+        #
+        # events = lessons.get_lessons_dict(prev_timetable)
+        #
+        # for event in events['to_add']:
+        #     if event['group'] in eng_groups:
+        #         cal_id = eng_groups[event['group']]['id']
+        #         calendar.create_event(event, cal_id)
+        #
+        # for event in events['to_del']:
+        #     if event['group'] in eng_groups:
+        #         cal_id = eng_groups[event['group']]['id']
+        #         calendar.delete_id(event['id'], cal_id)
+        #
+        # logging.info(f"English timetable updated ({datetime.datetime.now() - start_time_eng})")
 
         duration = datetime.datetime.now() - start_time
         sleep(UPDATE_TIME - duration.total_seconds())

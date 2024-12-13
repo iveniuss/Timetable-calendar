@@ -56,7 +56,7 @@ class Timetable(object):
         count_eng = 0
 
         for a in soup.find_all("a"):
-            if "Расписание занятий (" in a.text:
+            if "Расписание занятий (" in a.text or "СЕССИЯ" in a.text:
                 links.append(a.get("href"))
             elif "язык" in a.text:
                 links_eng.append(a.get("href"))

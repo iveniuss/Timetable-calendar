@@ -22,7 +22,7 @@ class GoogleCalendar(object):
         ex = self.service.events().insert(calendarId=calendarID,
                                           body=event).execute()
 
-        logging.info(f"event created {event['summary']}")
+        logging.info(f"event created {event['summary']} {event['start']}-{event['end']}")
 
     def delete_id(self, event_id, calendarID):
         self.service.events().delete(calendarId=calendarID, eventId=event_id).execute()
