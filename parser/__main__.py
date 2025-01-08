@@ -27,6 +27,8 @@ while True:
             start_time_gr = datetime.datetime.now()
             lessons = Lessons(group)
             for workbook in timetable.get_workbooks():
+                if not f"{group.get('course')} курс" in workbook.sheetnames:
+                    continue
                 worksheet = workbook[f"{group.get('course')} курс"]
                 lessons.add_lessons_from_sheet(worksheet)
 
@@ -83,6 +85,7 @@ while True:
         # logging.info(f"English timetable updated ({datetime.datetime.now() - start_time_eng})")
 
         duration = datetime.datetime.now() - start_time
+        logging.info(f"all groups updated({duration.total_seconds()} seconds)")
         sleep(UPDATE_TIME - duration.total_seconds())
     except Exception as ex:
         logging.error(ex)
